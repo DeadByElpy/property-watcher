@@ -21,7 +21,9 @@ module.exports = function ( obj, name, callback ) {
 
         set: function ( newValue ) {
             // apply and notify
-            callback(name, oldValue, oldValue = newValue);
+            setTimeout(function () {
+                callback(name, oldValue, oldValue = newValue);
+            }, 0);
         }
     });
 };
