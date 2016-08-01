@@ -6,7 +6,7 @@
 'use strict';
 
 
-var watchers = {},
+var watchers  = {},
     objectMap = [];
 
 
@@ -15,11 +15,11 @@ module.exports = function ( obj, name, callback ) {
     var index = objectMap.indexOf(obj),
         defineNeed = true,
         callbackIndex, oldValue;
-    
+
     if ( index === -1 ) {
         index = objectMap.push(obj) - 1;
     }
-    
+
     if ( !watchers[index] ) {
         watchers[index] = {};
     }
@@ -29,7 +29,7 @@ module.exports = function ( obj, name, callback ) {
     } else {
         defineNeed = false;
     }
-    
+
     callbackIndex = watchers[index][name].push(callback) - 1;
 
     // save old value before redefinition
@@ -41,13 +41,13 @@ module.exports = function ( obj, name, callback ) {
             get: function () {
                 return oldValue;
             },
-    
+
             set: function ( newValue ) {
                 // apply and notify
                 setTimeout(function () {
                     var i = 0,
                         size = watchers[index][name].length;
-                    
+
                     while ( i < size ) {
                         watchers[index][name][i](name, oldValue, oldValue = newValue);
                         ++i;
@@ -56,7 +56,7 @@ module.exports = function ( obj, name, callback ) {
             }
         });
     }
-    
+
     return {
         remove: function () {
             watchers[index][name].splice(callbackIndex, 1);
