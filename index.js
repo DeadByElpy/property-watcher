@@ -24,10 +24,10 @@ module.exports = function ( obj, name, callback ) {
         watchers[index] = {};
     }
 
-    if ( !watchers[index][name] ) {
-        watchers[index][name] = [];
-    } else {
+    if ( watchers[index][name] ) {
         defineNeed = false;
+    } else {
+        watchers[index][name] = [];
     }
 
     callbackIndex = watchers[index][name].push(callback) - 1;
@@ -45,13 +45,14 @@ module.exports = function ( obj, name, callback ) {
             set: function ( newValue ) {
                 // apply and notify
                 setTimeout(function () {
-                    var i = 0,
+                    var watcherIndex = 0,
                         size = watchers[index][name].length;
 
-                    while ( i < size ) {
-                        watchers[index][name][i](name, oldValue, oldValue = newValue);
-                        ++i;
+                    while ( watcherIndex < size ) {
+                        watchers[index][name][watcherIndex](name, oldValue, newValue);
+                        ++watcherIndex;
                     }
+                    oldValue = newValue;
                 }, 0);
             }
         });
