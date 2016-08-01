@@ -13,6 +13,7 @@ var watchers = {},
 // public
 module.exports = function ( obj, name, callback ) {
     var index = objectMap.indexOf(obj),
+        defineNeed = true,
         callbackIndex, oldValue;
     
     if ( index === -1 ) {
@@ -25,6 +26,8 @@ module.exports = function ( obj, name, callback ) {
 
     if ( !watchers[index][name] ) {
         watchers[index][name] = [];
+    } else {
+        defineNeed = false;
     }
     
     callbackIndex = watchers[index][name].push(callback) - 1;
@@ -32,25 +35,27 @@ module.exports = function ( obj, name, callback ) {
     // save old value before redefinition
     oldValue = obj[name];
 
-    // wrap the given property
-    Object.defineProperty(obj, name, {
-        get: function () {
-            return oldValue;
-        },
-
-        set: function ( newValue ) {
-            // apply and notify
-            setTimeout(function () {
-                var i = 0,
-                    size = watchers[index][name].length;
-                
-                while ( i < size ) {
-                    watchers[index][name][i](name, oldValue, oldValue = newValue);
-                    ++i;
-                }
-            }, 0);
-        }
-    });
+    if ( defineNeed ) {
+        // wrap the given property
+        Object.defineProperty(obj, name, {
+            get: function () {
+                return oldValue;
+            },
+    
+            set: function ( newValue ) {
+                // apply and notify
+                setTimeout(function () {
+                    var i = 0,
+                        size = watchers[index][name].length;
+                    
+                    while ( i < size ) {
+                        watchers[index][name][i](name, oldValue, oldValue = newValue);
+                        ++i;
+                    }
+                }, 0);
+            }
+        });
+    }
     
     return {
         remove: function () {
