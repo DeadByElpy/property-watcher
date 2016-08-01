@@ -24,12 +24,11 @@ describe('main', function () {
             name.should.equal('fld');
             oldValue.should.equal(128);
             newValue.should.equal(256);
+            console.log('done');
             done();
         });
 
-        obj.fld.should.equal(128);
         obj.fld = 256;
-        obj.fld.should.equal(256);
     });
 
 });
