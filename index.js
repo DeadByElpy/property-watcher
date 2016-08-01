@@ -6,9 +6,28 @@
 'use strict';
 
 
+var watchers = {},
+    objectMap = [];
+
+
 // public
 module.exports = function ( obj, name, callback ) {
-    var oldValue;
+    var index = objectMap.indexOf(obj),
+        callbackIndex, oldValue;
+    
+    if ( index === -1 ) {
+        index = objectMap.push(obj) - 1;
+    }
+    
+    if ( !watchers[index] ) {
+        watchers[index] = {};
+    }
+
+    if ( !watchers[index][name] ) {
+        watchers[index][name] = [];
+    }
+    
+    callbackIndex = watchers[index][name].push(callback) - 1;
 
     // save old value before redefinition
     oldValue = obj[name];
@@ -22,8 +41,20 @@ module.exports = function ( obj, name, callback ) {
         set: function ( newValue ) {
             // apply and notify
             setTimeout(function () {
-                callback(name, oldValue, oldValue = newValue);
+                var i = 0,
+                    size = watchers[index][name].length;
+                
+                while ( i < size ) {
+                    watchers[index][name][i](name, oldValue, oldValue = newValue);
+                    ++i;
+                }
             }, 0);
         }
     });
+    
+    return {
+        remove: function () {
+            watchers[index][name].splice(callbackIndex, 1);
+        }
+    };
 };
